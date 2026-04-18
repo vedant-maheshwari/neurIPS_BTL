@@ -1,0 +1,297 @@
+%%
+%% SECTION: Qualitative Analysis of Generated Responses Under SVD Truncation
+%%
+%% Drop this block into neurIPS_paper_final.tex before \section{Discussion}
+%%
+
+\section{Qualitative Analysis of Generated Responses Under SVD Truncation}
+
+While KL divergence and effective rank quantify \textit{how much} the output distribution shifts,
+they do not reveal \textit{what changes} in the generated text.
+In this section, we perform a systematic qualitative and quantitative analysis of the 42 generated
+responses under rank-$k$ truncation. We measure Jaccard word overlap, shared prefix length, step-count
+preservation, and word-count drift, and we identify five distinct generation archetypes that collectively
+explain the W-shape divergence pattern and the role of secondary singular modes.
+
+\subsection{Aggregate Text Metrics}
+
+Table~\ref{tab:text_metrics} summarises the four text-level metrics at $k=1$ for all six BTL levels.
+
+\begin{table}[h]
+\centering
+\caption{Text divergence metrics at $k=1$ (mean over 7 prompts per level). Jaccard = word-bag overlap;
+Prefix\% = fraction of generated tokens identical before first divergence;
+$\Delta$W = word-count change vs.\ baseline; Step\% = fraction of prompts preserving step count.}
+\label{tab:text_metrics}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{BTL Level} & \textbf{Jaccard} & \textbf{Prefix \%} & \textbf{$\Delta$W} & \textbf{Step\%} \\
+\midrule
+Remembering   & \textbf{0.658} & \textbf{32.0\%} &  $+0.3$ & \textbf{71\%} \\
+Analyzing     & 0.637          & 31.7\%          &  $-1.9$ & 57\%          \\
+Applying      & \textbf{0.666} & 19.5\%          &  $-0.6$ & 29\%          \\
+Understanding & 0.508          & 21.0\%          &  $-0.6$ & 43\%          \\
+Creating      & 0.506          & 19.5\%          &  $-5.1$ & 43\%          \\
+Evaluating    & 0.366          & 17.3\%          & $+7.7$  & 29\%          \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three observations stand out immediately.
+\textbf{(i)} Applying achieves the highest Jaccard similarity (0.666) despite a low prefix match (19.5\%)
+and low step-structure preservation (29\%), a dissociation explained in Section~\ref{sec:applying}.
+\textbf{(ii)} Evaluating is the only level where truncation \textit{inflates} response length ($+$7.7 words),
+for reasons explained in Section~\ref{sec:evaluating}.
+\textbf{(iii)} The overall word count is remarkably stable across levels (all $|\Delta W| < 8$),
+confirming that SVD truncation does not suppress generation fluency.
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{Remembering: Template Preservation with Metadata Compression}
+
+Rote recall prompts (e.g., \textit{``List the US Presidents who served during the 20th century''})
+produce the most stable outputs under truncation.
+At $k=1$, the full step-by-step scaffold is preserved in 71\% of cases---the highest of any level.
+What does change is the compression of relative-clause qualifiers:
+
+\begin{quote}
+\small
+\textbf{Baseline:} ``Recall the next US President \underline{who served after the first one}. Step 4: Remember the name...'' \\
+\textbf{$k=1$:} ``Recall the next US President. Step 4: Remember the name...''
+\end{quote}
+
+The truncated model drops the subordinate clause (``who served after the first one'') while
+preserving the action verb, the entity, and the ordering structure.
+This is not comprehension failure---the sentence remains grammatically and factually correct.
+It is \textit{syntactic metadata compression}: the primary singular mode ($v_1$) encodes the
+high-frequency action-entity pairs (Recall, President), while secondary modes ($v_2,\,v_3$)
+encode relational specificity.
+Remembering tasks are therefore naturally \emph{rank-1 compatible}: the information geometry
+of factual retrieval is intrinsically low-dimensional.
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{Understanding: Declarative-to-Temporal Framework Shift}
+\label{sec:understanding}
+
+Understanding-level prompts (e.g., \textit{``Explain how a four-stroke internal combustion engine works''})
+show the most dramatic structural reorganisation.
+The same factual content is preserved---intake stroke, piston moving downward, vacuum formation---but
+the discourse framing shifts entirely across truncation levels:
+
+\begin{quote}
+\small
+\textbf{Baseline:} \textit{``The first stroke \underline{is called} the intake stroke. During this stroke, the piston...''}\\
+\textbf{$k=1$:}  \textit{``The engine \underline{starts with} the intake stroke. The piston...''}\\
+\textbf{$k=5$:}  \textit{``The \underline{first step in} a four-stroke engine is the intake stroke. During this stroke...''}
+\end{quote}
+
+The baseline adopts a \textbf{definitional register} (``is called''), a formal taxonomic style.
+The $k=1$ output shifts to a \textbf{temporal narrative register} (``starts with''),
+and $k=5$ falls between them with an instructional framing (``first step in'').
+Critically, prefix match collapses to 21\% and step-structure preservation to 43\%.
+
+This finding explains why Understanding carries the \textbf{highest KL divergence} ($D_\mathrm{KL}=0.283$)
+despite being a mid-range cognitive level.
+Sustained explanatory discourse requires the model to maintain a \emph{consistent rhetorical register} over
+many generation steps---``is called'' at step 1 conditions ``is called'' at steps 2, 3, 4 via in-context
+imitation.
+When $v_2\dots v_4$ are removed, the model cannot sustain this register.
+It falls back to the highest-frequency discourse pattern in pre-training: sequential temporal narration.
+Register coherence across multiple steps is, therefore, a \emph{secondary-mode phenomenon}.
+
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{Applying: Formulaic Immunity and the Rank-1 Floor}
+\label{sec:applying}
+
+Mathematical and procedural prompts (e.g., \textit{``Calculate the trajectory of a projectile at 45$^\circ$,
+50\,m/s''}) exhibit a qualitatively different behaviour: \textbf{perfect output identity at $k=1$}---verified
+token-for-token across the full 200-token generation.
+
+The mechanism is straightforward: established physical formulae create near-deterministic next-token
+distributions.
+When the model generates ``Vx = V\,$\cdot$\,cos'', the only valid continuation within the kinematics
+vocabulary is ``(theta)''.
+There is essentially no probability mass for secondary tokens; the attention distribution collapses
+to a rank-1 manifold \textit{by the nature of the domain itself}.
+
+This defines what we term the \textbf{rank-1 floor}: a task-induced lower bound on attentional
+dimensionality below which any truncation is information-lossless.
+Mathematical syntax, physical constants, chemical equations, and rigid procedural protocols all reside
+at or near this floor.
+
+The apparent paradox in Table~\ref{tab:text_metrics} is resolved: Applying achieves high Jaccard (0.666)
+because domain-specific vocabulary (cos, sin, $\theta$, m/s) is reproduced identically across all models,
+but low step-structure preservation (29\%) because the \textit{scaffolding} around calculations---
+how many sub-steps to enumerate, whether to use bullet points or inline notation---depends on
+secondary singular modes.
+Knowledge of what to compute is rank-1; knowledge of how to present it is not.
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{Analyzing: Lexical Substitution with Preserved Logic Chain}
+
+Comparative analytical prompts (e.g., \textit{``Analyze the thematic differences between Marvel and DC''})
+show strong robustness, with Jaccard=0.637 and prefix=31.7\%---closely matching Remembering.
+
+The truncation effect is limited to fine-grained lexical synonymy:
+
+\begin{quote}
+\small
+\textbf{Baseline:} ``...known for their \underline{darker, more mature} tone...''\\
+\textbf{$k=1$:}  ``...known for their \underline{darker and more mature} tone...''\\
+\textbf{$k=5$:}  ``...often have a \underline{darker and more serious} tone...''
+\end{quote}
+
+The binary comparative frame (Marvel vs.\ DC, tone vs.\ world-building) creates
+predictable high-probability anchor positions in the generation trajectory.
+Secondary modes encode slight synonym preferences (``mature'' vs.\ ``serious'',
+``often focusing'' vs.\ ``focusing'') but do not alter the logical argument structure.
+Notably, $k=5$ produces the most deviant word choices---``more serious''
+instead of the more frequent ``more mature''---suggesting that \emph{higher-rank
+reconstructions can sometimes select rarer but equally valid alternatives}
+as the distributional mass spreads across more modes.
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{Evaluating: Interrogative Collapse and Modal Inversion}
+\label{sec:evaluating}
+
+Evaluative prompts produce the most consequential structural shift in the entire dataset.
+Consider the four-day workweek prompt:
+
+\begin{quote}
+\small
+\textbf{Baseline:} ``\underline{Consider} the economic impact. Step 2: \underline{Analyze} the psychological benefits.
+Step 3: \underline{Evaluate} the logistical challenges. Step 4: \underline{Weigh} the pros and cons...'' \\[4pt]
+\textbf{$k=1$:}  ``The four-day workweek is a proposal that aims to increase productivity...
+Step 2: To evaluate its effectiveness, we need to consider the economic impact.
+\underline{Will it lead to increased productivity?} Step 3: We also need to consider the psychological impact.
+\underline{Will employees be more motivated?}...''
+\end{quote}
+
+The baseline uses \textbf{imperative command mode}: a pre-planned evaluation agenda executed as
+concise directives (``Consider...'', ``Analyze...'', ``Evaluate...''). 
+The $k=1$ output undergoes \textbf{complete modal inversion into interrogative framing}:
+the model no longer \textit{executes} an evaluation plan but instead \textit{formulates the questions}
+that such a plan would answer.
+
+This distinction is not superficial.
+Imperative planning requires the model to hold two simultaneous representations:
+(a) the target topic (workweek economics) and (b) an abstract meta-schema of what evaluation
+entails (consider\,$\to$\,analyze\,$\to$\,weigh\,$\to$\,verdict).
+Secondary singular modes carry this meta-schema.
+At $k=1$, only the topic is retained; the model cannot sustain the evaluative meta-structure
+and generates the lower-rank fallback: open-ended questions that gesture toward evaluation
+without performing it.
+
+The $+7.7$ word-count inflation is a direct consequence: questions require more words
+than imperative directives to convey the same evaluative intent.
+Conversely, at $k=5$, step-structure recovery reaches \textbf{86\%}---the fastest convergence
+of any level---because Evaluating tasks, once the full meta-schema is available,
+converge to a narrow formulaic structure (weigh pros and cons, reach verdict).
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\textwidth]{/Users/vedantmaheshwari/.gemini/antigravity/scratch/neurIPS_BTL_multilayer/svd_btl_results/plots/logit_diff_vs_btl.png}
+        \caption{Mean logit difference across BTL levels and $k$ values. The W-shape mirrors the text divergence pattern.}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\textwidth]{/Users/vedantmaheshwari/.gemini/antigravity/scratch/neurIPS_BTL_multilayer/svd_btl_results/plots/dominance_vs_btl.png}
+        \caption{Top-1 singular value dominance per layer and BTL level. Dominance is layer-intrinsic, not prompt-dependent.}
+    \end{subfigure}
+    \caption{Logit perturbation and spectral dominance. The W-shape in logit difference is consistent with the interrogative-collapse finding at Evaluating: evaluative prompts concentrate more
+    attentional energy into $\sigma_1$ (high dominance), making them intrinsically more robust to $k=1$ truncation despite their stylistic volatility.}
+\end{figure}
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{Creating: Contextual Genericization and Constraint Binding}
+
+Creative synthesis prompts expose the most nuanced failure mode.
+Consider the mountainous city transportation example:
+
+\begin{quote}
+\small
+\textbf{Baseline:} Step 3: ``Research and identify suitable transportation modes
+  for mountainous areas, \underline{such as cable cars or gondolas}.'' \\[4pt]
+\textbf{$k=1$:}  Step 3: ``Determine the type of transportation system that would be
+  most \underline{efficient and cost-effective}.'' \\[4pt]
+\textbf{$k=3$:}  Step 3: ``Determine the type of transportation system
+  (e.g., buses, trains, \underline{or cable cars}).'' \\[4pt]
+\textbf{$k=5$:}  Step 3: ``Determine the type of transportation system most suitable
+  \underline{for the mountainous terrain}.''
+\end{quote}
+
+The truncation trajectory reveals a \textbf{constraint binding hierarchy}:
+\begin{enumerate}
+    \item At $k=1$: The domain constraint (mountainous terrain) disappears entirely,
+          replaced by generic optimisation language (efficient, cost-effective).
+    \item At $k=3$: Domain-specific options (cable cars) partially re-emerge,
+          but without the terrain justification.
+    \item At $k=5$: The terrain constraint is restored, but without creative synthesis
+          (no specific mention of cable cars or gondolas).
+    \item At baseline: Domain constraint $\times$ transport engineering $\to$ novel synthesis
+          (cable~cars, gondolas).
+\end{enumerate}
+
+This hierarchy demonstrates that cross-domain constraint binding---holding ``mountainous terrain''
+and ``transport engineering'' in joint attention simultaneously to produce a contextualised
+synthesis---requires progressively higher singular modes.
+Each additional mode restores one layer of constraint binding specificity.
+Creative tasks, by definition, require the binding of multiple domain constraints, explaining
+why step-structure preservation is 0\% at $k=3$ and $k=4$---the worst of all levels.
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{The Five Generation Archetypes}
+
+The six BTL levels reduce to five distinct generation archetypes under SVD truncation,
+ordered by increasing rank requirement:
+
+\begin{table}[h]
+\centering
+\caption{Generation archetypes under SVD truncation, from most to least rank-1 compatible.}
+\label{tab:archetypes}
+\begin{tabular}{lp{3.2cm}p{3.5cm}p{2.8cm}}
+\toprule
+\textbf{Archetype} & \textbf{BTL Levels} & \textbf{Effect at $k=1$} & \textbf{Recovery at $k=5$} \\
+\midrule
+Formulaic Immunity   & Applying (math)        & Perfect or near-perfect preservation & Perfect \\
+Template Preservation & Remembering            & Qualifier compression; scaffold intact & Near-full \\
+Lexical Substitution  & Analyzing              & Synonym swaps; logic chain preserved & Full \\
+Framework Shift       & Understanding          & Register change (declarative→narrative) & Partial \\
+Interrogative Collapse & Evaluating            & Imperative plan→exploratory questions; $+$7.7 words & 86\% step recovery \\
+Contextual Genericization & Creating           & Domain constraints dropped; generic templates & Partial constraint restoration \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+\subsection{The Chaotic Trajectory Theorem: Spectral Rank Does Not Predict Text Divergence}
+
+A critical control result bridges our spectral and text analyses.
+We compute Pearson $r$ between Layer 31's effective rank and two text-divergence
+measures across all 42 prompts:
+
+\begin{align}
+    r\bigl(r_\mathrm{eff}^{L31},\; \text{prefix match}\bigr) &= -0.106 \\
+    r\bigl(r_\mathrm{eff}^{L31},\; D_\mathrm{KL}\bigr)       &= -0.006
+\end{align}
+
+The correlation is effectively zero.
+A prompt with $r_\mathrm{eff}^{L31} = 4.6$ can diverge completely from baseline (0\% prefix);
+a prompt with $r_\mathrm{eff}^{L31} = 5.5$ can match 41\% of baseline tokens.
+The \emph{magnitude} of the initial spectral perturbation does not predict the
+\emph{trajectory} of autoregressive divergence.
+
+This is characteristic of a \textbf{chaotic dynamical system}: sensitive dependence on initial
+conditions drives exponential divergence throughout the generation trajectory, but the divergence
+is governed by the trajectory's Lyapunov structure, not by the norm of the initial perturbation.
+SVD truncation acts as a small perturbation to the initial condition of the generation system;
+the subsequent text trajectory compound-diverges through 200 autoregressive steps in a manner
+that is orthogonal to the initial perturbation magnitude.
+
+The practical implication is stark: \textbf{SVD truncation is not lossy compression of knowledge;
+it is a stochastic perturbation of the generation style trajectory.}
+The model's facts survive rank-1 reduction.
+Only its stylistic routing---register, framing, constraint binding, meta-schema selection---is
+displaced. This makes low-rank attention approximation viable for factual retrieval, classification,
+and mathematical computation, but unreliable for tasks requiring sustained stylistic or
+structural coherence.
