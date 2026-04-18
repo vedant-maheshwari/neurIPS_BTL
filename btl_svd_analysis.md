@@ -6,7 +6,7 @@
 
 ## 1. The Money Plot: Effective Rank × BTL Level × Layer
 
-![Rank Heatmap](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_heatmap_rank_btl_layer.png)
+![Rank Heatmap](plots/heatmap_rank_btl_layer.png)
 
 ### Depth gradient (averaged across all 42 prompts)
 
@@ -49,7 +49,7 @@ The heatmap reveals a **subtle but consistent trend** across BTL levels:
 
 ### KL Divergence Heatmap
 
-![KL Heatmap](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_heatmap_kl_btl_k.png)
+![KL Heatmap](plots/heatmap_kl_btl_k.png)
 
 ### Sensitivity ranking (k=1, most sensitive first)
 
@@ -67,7 +67,7 @@ The heatmap reveals a **subtle but consistent trend** across BTL levels:
 
 ### KL vs BTL with error bars
 
-![KL vs BTL](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_kl_vs_btl.png)
+![KL vs BTL](plots/kl_vs_btl.png)
 
 The **"W-shape"** is striking: Understanding and Creating peak, while Analyzing and Evaluating dip. The pattern holds across ALL k values, confirming it's a real structural effect, not noise.
 
@@ -89,7 +89,7 @@ Even at k=1 (retaining only 1 singular mode across 7 layers), the model's **top-
 
 ### Full generation identity
 
-![Gen Match](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_gen_match_vs_btl.png)
+![Gen Match](plots/gen_match_vs_btl.png)
 
 However, **full text** match is near-zero (~1/42 at any k). This means SVD truncation shifts later tokens in the autoregressive chain even when the first token is preserved. The divergence accumulates over 200 generated tokens.
 
@@ -102,7 +102,7 @@ However, **full text** match is near-zero (~1/42 at any k). This means SVD trunc
 
 ### Energy Retention (k=1)
 
-![Energy vs BTL](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_energy_vs_btl.png)
+![Energy vs BTL](plots/energy_vs_btl.png)
 
 | Layer Group | Energy at k=1 |
 |-------------|--------------|
@@ -115,13 +115,13 @@ However, **full text** match is near-zero (~1/42 at any k). This means SVD trunc
 
 ### Spectral Entropy
 
-![Entropy vs BTL](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_entropy_vs_btl.png)
+![Entropy vs BTL](plots/entropy_vs_btl.png)
 
 Layer 31 entropy ≈ 2.0 bits vs L16 ≈ 1.28 bits. The 0.72-bit gap corresponds to L31 using ~1.65× more effective modes than early layers.
 
 ### Top-1 Dominance
 
-![Dominance vs BTL](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_dominance_vs_btl.png)
+![Dominance vs BTL](plots/dominance_vs_btl.png)
 
 - L16 has the highest dominance (~0.405) — most rank-1-like
 - L31 has the lowest (~0.31) — most distributed
@@ -132,7 +132,7 @@ Both metrics are **effectively flat across BTL levels** — the spectral structu
 
 ## 5. Controlling for Sequence Length
 
-![Seqlen vs Rank](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_seqlen_vs_rank.png)
+![Seqlen vs Rank](plots/seqlen_vs_rank.png)
 
 Sequence lengths range from 67–87 tokens. The scatter shows **no systematic correlation** between sequence length and L31 effective rank (prompts at seq=75 span ranks 4.8–5.5). The BTL-level coloring shows no clustering either.
 
@@ -143,7 +143,7 @@ Sequence lengths range from 67–87 tokens. The scatter shows **no systematic co
 
 ## 6. Logit Perturbation
 
-![Logit Diff](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/btl_logit_diff_vs_btl.png)
+![Logit Diff](plots/logit_diff_vs_btl.png)
 
 Mean logit difference follows the same W-pattern as KL: peaks at Understanding and Applying, dips at Evaluating. This is consistent — prompts that are most sensitive in KL space are also most perturbed in raw logit space.
 

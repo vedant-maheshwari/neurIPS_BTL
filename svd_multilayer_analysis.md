@@ -7,7 +7,7 @@
 
 ## 1. Top-Level Result: Output Impact
 
-![K Sweep Summary](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k_sweep_summary.png)
+![K Sweep Summary](plots/multilayer/k_sweep_summary.png)
 
 ### Key observations from the sweep:
 
@@ -28,7 +28,7 @@ The negative KL at k=4 is likely floating-point noise — the true KL is effecti
 
 ### 2.1 Singular Value Spectra (k=1)
 
-![SV Spectra](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k1_sv_spectra.png)
+![SV Spectra](plots/multilayer/k1/sv_spectra.png)
 
 **The spectral decay rate increases dramatically with depth:**
 
@@ -48,9 +48,9 @@ The negative KL at k=4 is likely floating-point noise — the true KL is effecti
 ### 2.2 Energy Retention
 
 ````carousel
-![K=1 Energy Retention](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k1_energy.png)
+![K=1 Energy Retention](plots/multilayer/k1/energy_retention.png)
 <!-- slide -->
-![K=5 Energy Retention](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k5_energy.png)
+![K=5 Energy Retention](plots/multilayer/k5/energy_retention.png)
 ````
 
 **At k=1:**
@@ -66,7 +66,7 @@ The negative KL at k=4 is likely floating-point noise — the true KL is effecti
 
 ### 2.3 Energy Convergence Across k
 
-![Energy vs K](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/energy_vs_k.png)
+![Energy vs K](plots/multilayer/energy_vs_k_per_layer.png)
 
 - **Layers 15-20** converge to ~100% energy by k=2. The jump from k=1 (75-78%) to k=2 (~98%) is the steepest — confirming these layers are effectively **rank-2**
 - **Layer 31** converges much more slowly: 66% → 85% → 93% → 95% → 97.5%. Even at k=5, it hasn't reached 100%
@@ -76,7 +76,7 @@ The negative KL at k=4 is likely floating-point noise — the true KL is effecti
 
 ## 3. Effective Rank Analysis
 
-![Effective Rank vs K](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/eff_rank_vs_k.png)
+![Effective Rank vs K](plots/multilayer/eff_rank_vs_k_per_layer.png)
 
 | Layer | Mean Effective Rank |
 |-------|-------------------|
@@ -98,9 +98,9 @@ The effective rank is **constant across k** (flat lines) because it's a property
 ## 4. Spectral Metadata Heatmaps
 
 ````carousel
-![K=1 Metadata](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k1_metadata.png)
+![K=1 Metadata](plots/multilayer/k1/metadata_heatmaps.png)
 <!-- slide -->
-![K=5 Metadata](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k5_metadata.png)
+![K=5 Metadata](plots/multilayer/k5/metadata_heatmaps.png)
 ````
 
 ### Effective Rank (top-left)
@@ -129,9 +129,9 @@ The effective rank is **constant across k** (flat lines) because it's a property
 ### k=1: Layer 15 vs Layer 31
 
 ````carousel
-![L15 K=1 Attention](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k1_attn_L15.png)
+![L15 K=1 Attention](plots/multilayer/k1/attn_L15_H0.png)
 <!-- slide -->
-![L31 K=1 Attention](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k1_attn_L31.png)
+![L31 K=1 Attention](plots/multilayer/k1/attn_L31_H0.png)
 ````
 
 **Layer 15 at k=1**: The truncated heatmap closely matches the original. Difference magnitudes peak at ~0.3. The rank-1 approximation preserves the dominant attending-to-"Expl" pattern.
@@ -140,7 +140,7 @@ The effective rank is **constant across k** (flat lines) because it's a property
 
 ### k=5: Layer 31
 
-![L31 K=5 Attention](/Users/vedantmaheshwari/.gemini/antigravity/brain/fe7027e4-9eef-49c0-ac10-3f9b5a3227a6/k5_attn_L31.png)
+![L31 K=5 Attention](plots/multilayer/k5/attn_L31_H0.png)
 
 At k=5, even L31 is mostly recovered. Residual differences exist at "Ġentropy" (0.6) and "Ġof" (0.2), but the overall structure is preserved.
 
