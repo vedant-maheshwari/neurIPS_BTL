@@ -47,11 +47,9 @@ The negative KL at k=4 is likely floating-point noise — the true KL is effecti
 
 ### 2.2 Energy Retention
 
-````carousel
 ![K=1 Energy Retention](plots/multilayer/k1/energy_retention.png)
-<!-- slide -->
+
 ![K=5 Energy Retention](plots/multilayer/k5/energy_retention.png)
-````
 
 **At k=1:**
 - **Layers 15–20**: Mean energy retained = 75–78% (significant loss, but nearly uniform across heads)
@@ -97,11 +95,9 @@ The effective rank is **constant across k** (flat lines) because it's a property
 
 ## 4. Spectral Metadata Heatmaps
 
-````carousel
 ![K=1 Metadata](plots/multilayer/k1/metadata_heatmaps.png)
-<!-- slide -->
+
 ![K=5 Metadata](plots/multilayer/k5/metadata_heatmaps.png)
-````
 
 ### Effective Rank (top-left)
 - L31 row is visibly brighter — especially **Head 0 (rank~8)** and **Head 25 (rank~9)**
@@ -128,11 +124,9 @@ The effective rank is **constant across k** (flat lines) because it's a property
 
 ### k=1: Layer 15 vs Layer 31
 
-````carousel
 ![L15 K=1 Attention](plots/multilayer/k1/attn_L15_H0.png)
-<!-- slide -->
+
 ![L31 K=1 Attention](plots/multilayer/k1/attn_L31_H0.png)
-````
 
 **Layer 15 at k=1**: The truncated heatmap closely matches the original. Difference magnitudes peak at ~0.3. The rank-1 approximation preserves the dominant attending-to-"Expl" pattern.
 
